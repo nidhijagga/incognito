@@ -5,8 +5,10 @@ export { default } from 'next-auth/middleware';
 
 // Middleware function
 export async function middleware(request: NextRequest) {
+    console.log('middleware')
     const token = await getToken({ req: request });
     const url = request.nextUrl;
+    console.log('url.pathname', url.pathname)
 
     // Redirect authenticated users from sign-in/sign-up to home
 
@@ -17,7 +19,7 @@ export async function middleware(request: NextRequest) {
     // }
 
     // Redirect unauthenticated users trying to access protected routes
-    if (!token && url.pathname !== '/sign-in' && !url.pathname.startsWith('/sign-up')) {
+    if (!token && url.pathname !== '/api/sign-in' && !url.pathname.startsWith('/api/sign-up') && !url.pathname.startsWith('/api/verify-code')) {
         return new NextResponse(JSON.stringify({
             error: 'Unauthorized access. Please sign in.'
         }), {
@@ -34,7 +36,8 @@ export async function middleware(request: NextRequest) {
 // Path to run middleware on
 export const config = {
     matcher: [
-        '/sign-in',
-        '/sign-up/:path*',
+        '/api/sign-in',
+        '/api/sign-up/:path*',
+        '/api/verify-code/:path*'
     ],
 };
