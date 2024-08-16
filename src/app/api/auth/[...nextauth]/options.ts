@@ -3,26 +3,27 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcryptjs'
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
-import { VscDebugBreakpointUnsupported } from "react-icons/vsc";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions : NextAuthOptions = {
     providers: [
         CredentialsProvider({
             id: "credentials",
             name: "Credentials",
             credentials: {
-                email: { label: "Email", type: "text", placeholder: "jsmith" },
+                email: { label: "Email", type: "text", placeholder: "Email" },
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials: any): Promise<any> {
+                console.log("Authorization called with:", credentials);
                 await dbConnect();
                 try {
                     const user = await UserModel.findOne({
                         $or: [
-                            { username: credentials.identifier },
-                            { email: credentials.identifier }
+                            { username: credentials?.username },
+                            { email: credentials.email }
                         ]
                     })
+                    console.log('user', user)
                     if (!user) {
                         throw new Error("User Not Found")
                     } else {
@@ -38,6 +39,7 @@ export const authOptions: NextAuthOptions = {
                         }
                     }
                 } catch (error: any) {
+                    console.log('error in login', error)
                     throw new error(error)
                 }
             }
@@ -45,7 +47,7 @@ export const authOptions: NextAuthOptions = {
         })
     ],
     pages: {
-        signIn: '/sign-in', 
+        signIn: '/auth/signin', 
     },
     session: {
         strategy: "jwt",
