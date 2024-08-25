@@ -8,35 +8,50 @@ export async function middleware(request: NextRequest) {
 	console.log("middleware");
 	const token = await getToken({ req: request });
 	const url = request.nextUrl;
-	console.log("url.pathname", url.pathname);
 
-	// Redirect authenticated users from sign-in/sign-up to home
+	// Handle frontend routes
+	if (!url.pathname.startsWith("/api")) {
+		// Redirect authenticated users from sign-in/sign-up to dashboard
+		if (
+			token &&
+			(url.pathname.startsWith("/signup") ||
+				url.pathname.startsWith("/login") ||
+				url.pathname === "/")
+		) {
+			return NextResponse.redirect(new URL("/dashboard", request.url));
+		}
 
-	// (For a while commenting this code because, at this path sign-up/validate-username, this code will work which can create issues)
+		// Redirect unauthenticated users trying to access protected frontend routes to login
+		if (
+			!token &&
+			(url.pathname === "/" || url.pathname.startsWith("/dashboard"))
+		) {
+			return NextResponse.redirect(new URL("/login", request.url));
+		}
+	}
 
-	// if (token && (url.pathname.startsWith('/sign-up') || url.pathname.startsWith('/sign-in'))) {
-	//     return NextResponse.redirect(new URL('/home', request.url));
-	// }
-
-	// Redirect unauthenticated users trying to access protected routes
-	if (
-		!token &&
-		url.pathname !== "/api/sign-in" &&
-		!url.pathname.startsWith("/api/sign-up") &&
-		!url.pathname.startsWith("/api/verify-code") &&
-		url.pathname !== "/api/message/post"
-	) {
-		return new NextResponse(
-			JSON.stringify({
-				error: "Unauthorized access. Please sign in.",
-			}),
-			{
-				status: 401,
-				headers: {
-					"Content-Type": "application/json",
-				},
-			}
-		);
+	// Handle backend API routes
+	if (url.pathname.startsWith("/api")) {
+		// Protect API routes from unauthorized access
+		if (
+			!token &&
+			url.pathname !== "/api/sign-in" &&
+			!url.pathname.startsWith("/api/sign-up") &&
+			!url.pathname.startsWith("/api/verify-code") &&
+			url.pathname !== "/api/message/post"
+		) {
+			return new NextResponse(
+				JSON.stringify({
+					error: "Unauthorized access. Please sign in.",
+				}),
+				{
+					status: 401,
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}
+			);
+		}
 	}
 
 	return NextResponse.next();
@@ -49,5 +64,9 @@ export const config = {
 		"/api/sign-up/:path*",
 		"/api/verify-code/:path*",
 		"/api/message/:path*",
+		"/",
+		"/dashboard/:path*",
+		"/login",
+		"/signup",
 	],
 };

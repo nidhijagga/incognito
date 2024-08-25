@@ -13,17 +13,21 @@ const DashboardPage = () => {
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [totalPages, setTotalPages] = useState<number>(0);
 
+	// useEffect(() => {
+	// 	if (status === "loading") {
+	// 		return; // Just wait for the status to update
+	// 	}
+	// 	if (!session) {
+	// 		router.push("/login"); // Redirect if not authenticated
+	// 	} else {
+	// 		// Fetch messages if authenticated
+	// 		fetchMessages(1); // Default to page 1
+	// 	}
+	// }, [status, session, router]);
+
 	useEffect(() => {
-		if (status === "loading") {
-			return; // Just wait for the status to update
-		}
-		if (!session) {
-			router.push("/login"); // Redirect if not authenticated
-		} else {
-			// Fetch messages if authenticated
-			fetchMessages(1); // Default to page 1
-		}
-	}, [status, session, router]);
+		fetchMessages(1);
+	}, []);
 
 	const fetchMessages = async (page: number) => {
 		try {
