@@ -6,20 +6,20 @@ import Provider from "@/context/Provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Incognito",
-  description: "Incognito",
+	title: "Incognito",
+	description: "Incognito",
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <Provider session={null}>
-        <body className={inter.className}>{children}</body>
-      </Provider>
-    </html>
-  );
+	return (
+		<html lang="en">
+			<Provider session={null}>
+				<body className={inter.className}>{children}</body>
+			</Provider>
+		</html>
+	);
 }
